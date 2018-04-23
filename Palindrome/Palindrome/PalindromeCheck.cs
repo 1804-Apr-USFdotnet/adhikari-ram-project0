@@ -7,7 +7,7 @@ namespace Palindrome
     {
         public bool IsPalindrome(string str)
         {
-            string check = RemovePunctuation(str).ToLower();
+            string check = RemovePunctuation(str).ToLower().Replace(" ", String.Empty);
             if (check.Length <= 1)
             {
                 return true;
