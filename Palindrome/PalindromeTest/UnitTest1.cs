@@ -15,7 +15,7 @@ namespace PalindromeTest
 
             PalindromeCheck checkP = new PalindromeCheck();
 
-            Assert.AreEqual(expected, checkP.IsPalindrome("never Odd, or Even."));
+            Assert.AreEqual(expected, checkP.IsPalindrome("1231"));
 
             //for (int i = 0; i < str.Length; i++)
             //{
