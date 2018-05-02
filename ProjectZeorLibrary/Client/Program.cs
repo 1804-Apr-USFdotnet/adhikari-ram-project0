@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Data;
 using NLog;
 using BusinessLogic;
 
@@ -20,25 +17,20 @@ namespace Client
         {
             //Use business logic library instance to access Functionalities
             Library logic = new Library();
-
-            /**
-            //Serialization and Deserialization of restaurant objects
-            HelperSerialize<Restaurant> serializeTest = new HelperSerialize<Restaurant>();
-            DataLayer crudTest = new DataLayer();
-            List<Restaurant> restaurantList = crudTest.GetRestaurantsList();
-            string fileName = serializeTest.getFilePath();
-            serializeTest.SerializeRestaurants(restaurantList, fileName);
-            List<Restaurant> resDeserialized = serializeTest.DeserializeRestaurants(fileName);
-            **/
+            int minId = logic.MinId();
+            int maxId = logic.MaxId();
 
             Logger logger = NLog.LogManager.GetCurrentClassLogger();
-            logger.Info("Logger enabled");
-
-            DisplayMenu();
+            logger.Info("Please press enter key to start the program.");            
 
             int number;
             while (true)
             {
+                Console.Write("Enter to Continue...");
+                Console.ReadKey();
+                Console.Clear();
+                DisplayMenu();
+                Console.Write(">");
                 var input = Console.ReadLine();
                 if (input == "10")
                 {
@@ -52,27 +44,39 @@ namespace Client
                         case 1:
                             List<string> newResData = AddNewResaurant1();
                             logic.Add(newResData);
-                            logger.Info("One restaurant successfully added");
                             break;
 
                         case 2:
                             logic.PrintIds();
                             List<string> list2 = UpdateRestaurant2();
                             logic.Modify(list2);
-                            logger.Info("One restaurant successfully updated");
                             break;
 
                         case 3:
                             logic.PrintIds();
                             int restaurantId3 = DeleteId();
                             logic.Delete(restaurantId3);
-                            logger.Info("One restaurant successfully deleted");
                             break;
-
                         case 4:
-                            logic.PrintIds();
-                            int restaurantId4 = GetResId();
-                            logic.DisplayRestaurantById(restaurantId4);
+                            string id = "";
+                            int i = 0;
+                            int checkMe = 0;
+                            while (true)
+                            {
+                                if (checkMe >= minId && checkMe <= maxId)
+                                {
+                                    logic.DisplayRestaurantById(checkMe);
+                                    break;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Enter the restaurant's id that you would like to display(" + minId + "-" + maxId + "): ");
+                                    Console.Write("->");
+                                    id = Console.ReadLine();
+                                    int.TryParse(id, out i);
+                                    checkMe = i;
+                                }
+                            }                   
                             break;
 
                         case 5:
@@ -84,10 +88,26 @@ namespace Client
                             break;
 
                         case 7:
-                            Console.WriteLine("Enter the id of the restaurat to view its reviews: ");
-                            string restaurantId = Console.ReadLine();
-                            int.TryParse(restaurantId, out int resId);
-                            logic.DisplayReviewsOfRestaurant(resId);
+                            string id7 = "";
+                            int result = 0;
+                            int checkMe7 = 0;
+                            while (true)
+                            {
+                                if (checkMe7 >= minId && checkMe7 <= maxId)
+                                {
+                                    logic.DisplayReviewsOfRestaurant(checkMe7);
+                                    break;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Enter the restaurant's id to display all the reviews " +
+                                        "of that restaurant (" + minId + "-" + maxId + "): ");
+                                    Console.Write("->");
+                                    id7 = Console.ReadLine();
+                                    int.TryParse(id7, out result);
+                                    checkMe7 = result;
+                                }
+                            }                            
                             break;
 
                         case 8:
@@ -96,6 +116,7 @@ namespace Client
 
                         case 9:
                             Console.WriteLine("Enter the partial name of a restaurant: ");
+                            Console.Write("->");
                             string partialName = Console.ReadLine();
                             logic.PartialSearch(partialName);
                             break;
@@ -205,6 +226,7 @@ namespace Client
             do
             {
                 Console.WriteLine("Enter the restaurant's id that you would like to modify: ");
+                Console.Write("->");
                 id = Console.ReadLine();
                 i = int.Parse(id);
             } while (i == 0);
@@ -214,6 +236,7 @@ namespace Client
             int number;
             while (true)
             {
+                Console.Write("->");
                 var input = Console.ReadLine();
                 if (input == "7")
                 {
@@ -228,6 +251,7 @@ namespace Client
                             do
                             {
                                 Console.WriteLine("Modify restaurant name: ");
+                                Console.Write("->");
                                 name = Console.ReadLine();
                             } while (name.Length == 0);
                             break;
@@ -235,6 +259,7 @@ namespace Client
                             do
                             {
                                 Console.WriteLine("Modify restaurnt's full address: ");
+                                Console.Write("->");
                                 address = Console.ReadLine();
                             } while (address.Length <= 10);
                             break;
@@ -242,22 +267,26 @@ namespace Client
                             do
                             {
                                 Console.WriteLine("Modify restaurnt's 10 digit phone number(no spaces): ");
+                                Console.Write("->");
                                 phone = Console.ReadLine();
                             } while (!IsTenDigits(phone));
                             break;
                         case 4:
                             Console.WriteLine("Enter restaurnt's website: ");
+                            Console.Write("->");
                             website = Console.ReadLine();
                             break;
                         case 5:
                             do
                             {
                                 Console.WriteLine("Enter restaurnt's delivery option(y/n): ");
+                                Console.Write("->");
                                 delivery = Console.ReadLine();
                             } while (!(delivery.ToLower() == "y" || delivery.ToLower() == "n"));
                             break;
                         case 6:
                             Console.WriteLine("Enter restaurant food type(vegan, veg, non-veg): ");
+                            Console.Write("->");
                             foodType = Console.ReadLine();
                             break;
                         default:
@@ -298,6 +327,7 @@ namespace Client
             do
             {
                 Console.WriteLine("Enter the restaurant's id that you would like to delete: ");
+                Console.Write("->");
                 id = Console.ReadLine();
                 int.TryParse(id, out i);
             } while (i == 0);
@@ -305,12 +335,16 @@ namespace Client
         }
 
         //Helper method
-        private static int GetResId()
+        private static int GetResId(string message, int min, int max)
         {
             string id = "";
-            Console.WriteLine("Enter the restaurant's id that you would like to display: ");
-            id = Console.ReadLine();
-            int.TryParse(id, out int i);
+            int i = 0;
+            while(i < min && i > max)
+            {
+                Console.WriteLine("Enter the restaurant's id that you would like " + message + " (" + min + "-" + max + "): ");
+                id = Console.ReadLine();
+                int.TryParse(id, out i);
+            }
             return i;
         }
     }
